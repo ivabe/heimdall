@@ -25,17 +25,19 @@ RUN mkdir -p ~/bin/
 RUN ln -s $(go env GOPATH)/bin/shell2http ~/bin/shell2http
 ENV PATH=$PATH:/root/go/bin/
 
+COPY ./heimdalljs /app/heimdalljs
+RUN npm link
+RUN heimdalljs -h
+
+COPY ./.git /app/.git
+
 # https://github.com/msoap/shell2http
 CMD ["shell2http","-form",\
  "GET:/upload/form", "echo \"<html><body><form method=POST action=/upload/file?name=$v_name enctype=multipart/form-data><input type=file name=uplfile><input type=submit></form>\"",\
  "POST:/upload/file", "cat $filepath_uplfile > $v_name; echo OK \"$v_name $filepath_uplfile\"",\
  "/heimdalljs/key/new", "heimdalljs key new $v_seed",\
  "/heimdalljs/key/pub", "echo \"$v_private\" | heimdalljs key pub",\
- "/heimdalljs/cred/new", "heimdalljs cred new --attributes $v_attributes --id $v_id --publicKey $v_publicKey --expiration $v_expiration --type $v_type --delegatable $v_delegatable --registry $v_registry --secretKey $v_secretKey --destination $v_destination ; cat $v_destination"\
+ "/heimdalljs/cred/new", "heimdalljs cred new --attributes $v_attributes --id $v_id --publicKey $v_publicKey --expiration $v_expiration --type $v_type --delegatable $v_delegatable --registry $v_registry --secretKey $v_secretKey --destination $v_destination ; cat $v_destination",\
+ "/heimdalljs/pres/attribute", "heimdalljs pres attribute $v_index --expiration $v_expiration --challenge $v_challenge --destination $v_destination --secretKey $v_secretKey --credential $v_credential ; cat $v_destination",\
+ "/heimdalljs/verify", "heimdalljs verify $v_path > result.txt ; cat result.txt"\
  ]
-
-COPY ./heimdalljs /app/heimdalljs
-RUN npm link
-RUN heimdalljs -h
-
-COPY ./.git /app/.git
