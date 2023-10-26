@@ -33,7 +33,9 @@ class AttributePresentation extends Presentation {
 
     }
 
-    async verify(hasher, cred) {
+    async verify(hasher, cred, root) {
+        if (!this.revocationRoot)
+            this.revocationRoot = root;
         try {
             let copy = JSON.stringify(stringifyBigInts(this));
             let res = await this.verifyProof();
@@ -51,7 +53,8 @@ class AttributePresentation extends Presentation {
             res &&= hasher([this.output.content.attribute]).toString() === this.publicSignals[6];
             this.output.content.position = 0;
             // Pass credentials, look for attribute position (index) within the array
-            this.output.content.position = cred.attributes.indexOf(this.output.content.attribute);
+            if (cred)
+                this.output.content.position = cred.attributes.indexOf(this.output.content.attribute);
             /*
             for (let i = 0; i < 4; i++) {
                 this.output.content.position += (2 ** i) * this.publicSignals[9 + i];
