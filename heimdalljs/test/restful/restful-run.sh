@@ -12,17 +12,17 @@ SEED_ISSUER=777
 SEED_HOLDER=55555
 
 echo "Generating secret keys and saving as files"
-curl "http://$IP_CA/heimdalljs/key/new?seed=$SEED_CA" > ca_sk.txt
-curl "http://$IP_ISSUER/heimdalljs/key/new?seed=$SEED_ISSUER" > issuer_sk.txt
-curl "http://$IP_HOLDER/heimdalljs/key/new?seed=$SEED_HOLDER" > holder_sk.txt
+curl -s "http://$IP_CA/heimdalljs/key/new?seed=$SEED_CA" > ca_sk.txt
+curl -s "http://$IP_ISSUER/heimdalljs/key/new?seed=$SEED_ISSUER" > issuer_sk.txt
+curl -s "http://$IP_HOLDER/heimdalljs/key/new?seed=$SEED_HOLDER" > holder_sk.txt
 
 SECRET_KEY_CA=$(< ca_sk.txt)
 SECRET_KEY_ISSUER=$(< issuer_sk.txt)
 SECRET_KEY_HOLDER=$(< holder_sk.txt)
 
 echo "Deriving private keys and saving as files"
-curl "http://$IP_ISSUER/heimdalljs/key/pub?private=$SECRET_KEY_ISSUER" > issuer_pk.json
-curl "http://$IP_HOLDER/heimdalljs/key/pub?private=$SECRET_KEY_HOLDER" > holder_pk.json
+curl -s "http://$IP_ISSUER/heimdalljs/key/pub?private=$SECRET_KEY_ISSUER" > issuer_pk.json
+curl -s "http://$IP_HOLDER/heimdalljs/key/pub?private=$SECRET_KEY_HOLDER" > holder_pk.json
 
 
 
@@ -41,15 +41,15 @@ cat <<EOM > attr_issuer.json
 EOM
 
 echo "Uploading files to CA's Heimdall instance"
-curl --request POST "http://$IP_CA/upload/file?name=attr_issuer.json" --form "uplfile=@attr_issuer.json"
-curl --request POST "http://$IP_CA/upload/file?name=issuer_pk.json" --form "uplfile=@issuer_pk.json"
-curl --request POST "http://$IP_CA/upload/file?name=ca_sk.txt" --form "uplfile=@ca_sk.txt"
+curl -s --request POST "http://$IP_CA/upload/file?name=attr_issuer.json" --form "uplfile=@attr_issuer.json"
+curl -s --request POST "http://$IP_CA/upload/file?name=issuer_pk.json" --form "uplfile=@issuer_pk.json"
+curl -s --request POST "http://$IP_CA/upload/file?name=ca_sk.txt" --form "uplfile=@ca_sk.txt"
 
 
 REGISTRY=https://gitlab.fit.fraunhofer.de/matthias.babel/heimdall-revocation/-/raw/master/
 
 echo "Creating credential of the issuer by the CA"
-curl "http://$IP_CA/heimdalljs/cred/new?attributes=attr_issuer.json&id=1234500&publicKey=issuer_pk.json&expiration=365&type=RegistrationOffice&delegatable=1&registry=$REGISTRY&secretKey=ca_sk.txt&destination=cred_issuer.json" > cred_issuer.json
+curl -s "http://$IP_CA/heimdalljs/cred/new?attributes=attr_issuer.json&id=1234500&publicKey=issuer_pk.json&expiration=365&type=RegistrationOffice&delegatable=1&registry=$REGISTRY&secretKey=ca_sk.txt&destination=cred_issuer.json" > cred_issuer.json
 
 
 
@@ -68,10 +68,25 @@ cat <<EOM > attr_holder.json
 EOM
 
 echo "Uploading files to issuers's Heimdall instance"
-curl --request POST "http://$IP_ISSUER/upload/file?name=attr_holder.json" --form "uplfile=@attr_holder.json"
-curl --request POST "http://$IP_ISSUER/upload/file?name=holder_pk.json" --form "uplfile=@holder_pk.json"
-curl --request POST "http://$IP_ISSUER/upload/file?name=issuer_sk.txt" --form "uplfile=@issuer_sk.txt"
+curl -s --request POST "http://$IP_ISSUER/upload/file?name=attr_holder.json" --form "uplfile=@attr_holder.json"
+curl -s --request POST "http://$IP_ISSUER/upload/file?name=holder_pk.json" --form "uplfile=@holder_pk.json"
+curl -s --request POST "http://$IP_ISSUER/upload/file?name=issuer_sk.txt" --form "uplfile=@issuer_sk.txt"
 
 
 echo "Creating credential of the holder by the issuer"
-curl "http://$IP_HOLDER/heimdalljs/cred/new?attributes=attr_holder.json&id=1234501&publicKey=holder_pk.json&expiration=365&type=IdentityCard&delegatable=0&registry=$REGISTRY&secretKey=issuer_sk.txt&destination=cred_holder.json" > cred_holder.json
+curl -s "http://$IP_ISSUER/heimdalljs/cred/new?attributes=attr_holder.json&id=1234501&publicKey=holder_pk.json&expiration=365&type=IdentityCard&delegatable=0&registry=$REGISTRY&secretKey=issuer_sk.txt&destination=cred_holder.json" > cred_holder.json
+
+
+
+echo "Uploading files to holder's Heimdall instance"
+curl -s --request POST "http://$IP_HOLDER/upload/file?name=cred_holder.json" --form "uplfile=@cred_holder.json"
+curl -s --request POST "http://$IP_HOLDER/upload/file?name=holder_sk.txt" --form "uplfile=@holder_sk.txt"
+
+CHALLENGE=1231423534
+
+echo "Generate the presentation of the attribute by holder"
+#TODO: update circuits and get rid of all the useless output in the pres_attribute.json file
+curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&credential=cred_holder.json&secretKey=holder_sk.txt&destination=pres_attribute.json?credential=cred_holder.json" > pres_attribute.json
+
+echo "Verify the attribute presentation (should be verifier, it will be agent)"
+curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > result.txt
