@@ -56,14 +56,10 @@ class Presentation {
         this.privateInput.issuerPK = [cred.signature.pk[0], cred.signature.pk[1]];
         let positionRevocationTree = Math.floor(cred.attributes[0] / Number(MAX_LEAF_SIZE)); // Leaf 4898
         let proofRevocation = revocationTree.generateProof(positionRevocationTree);
-        console.log("JS revocation tree proofs");
-        console.log("Proof for position leaf: ", positionRevocationTree);
-        console.log(proofRevocation);
         this.revocationRoot = revocationTree.root;
         this.privateInput.pathRevocation = proofRevocation.path;
         this.privateInput.lemmaRevocation = proofRevocation.lemma;
         this.privateInput.revocationLeaf = revocationTree.leaves[positionRevocationTree];
-        console.log("Revocation leaf:", this.privateInput.revocationLeaf);
         this.privateInput.challenge = challenge;
         if (typeof sk !== 'undefined') {
             let signChallenge = signatureGenerator(sk, BigInt(challenge));
@@ -100,15 +96,11 @@ class Presentation {
             path.join(root, "zkp", this.type, "test.attributePresentation.final.zkey")
         );
         let t1 = performance.now();
-        console.log("Prove took " + (t1 - t0) + " milliseconds.");
 
         this.proof = proof;
         this.publicSignals = publicSignals;
 
         let res = await this.verifyProof();
-        console.log(`Generate groth16 proof, and verify: ${res}`);
-        console.log("Public Signals:")
-        console.log(this.publicSignals);
         // Overwriting private input
         this.privateInput = {};
 

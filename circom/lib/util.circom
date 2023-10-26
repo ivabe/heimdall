@@ -3,7 +3,6 @@ include "./circomlib/circuits/bitify.circom";
 
 template ExtractKthBit(n) {
     signal input in;
-    log("Revocation leaf = ", in);
     signal input k;
     signal output outBit; // bit value, must be either 0/1
    
@@ -21,9 +20,8 @@ template ExtractKthBit(n) {
         // ∑_0_to_251 n[i]*IsEqual(i,k)
         runningOutputBitSum[i+1] <== runningOutputBitSum[i] + bit_array.out[i] * equality_check[i].out;
         if(bit_array.out[i] * equality_check[i].out){
-            log("Revocation position within the leaf ", k);
+          //  log("Revocation position within the leaf ", k);
         }
     }
     outBit <== runningOutputBitSum[n];
-    log("Revocation bit: ", outBit);
 }
