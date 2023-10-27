@@ -21,25 +21,18 @@ class RevocationRegistry {
      * @param id
      */
     update = (id, sk = undefined) => {
-        console.debug('update() id >> ', id);
         const threshold = 2n ** BigInt(REVOC_TREE_DEPTH) * MAX_LEAF_SIZE;
-        console.debug('update() threshold >> ', threshold);
         if (BigInt(id) >= threshold) throw "Id not in the tree";
 
         let indexLeaf = BigInt(id) / MAX_LEAF_SIZE;
-        console.debug('update() indexLeaf >> ', indexLeaf);
         let indexBit = BigInt(id) % MAX_LEAF_SIZE;
-        console.debug('update() indexBit >> ', indexBit);
 
         const comparator = (BigInt(this.tree.leaves[indexLeaf]) / 2n ** indexBit) % 2n;
-        console.debug('update() comparator >> ', comparator);
         if (comparator === 1n) {
             const newValue = BigInt(this.tree.leaves[indexLeaf]) - 2n ** indexBit;
-            console.debug('update() newValue >> ', newValue);
             this.tree.update(indexLeaf, newValue);
         } else {
             const newValue = BigInt(this.tree.leaves[indexLeaf]) + 2n ** indexBit;
-            console.debug('update() newValue >> ', newValue);
             this.tree.update(indexLeaf, newValue);
         }
         if (typeof sk !== "undefined")

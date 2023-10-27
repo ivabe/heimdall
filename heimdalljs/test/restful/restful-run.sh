@@ -46,10 +46,11 @@ curl -s --request POST "http://$IP_CA/upload/file?name=issuer_pk.json" --form "u
 curl -s --request POST "http://$IP_CA/upload/file?name=ca_sk.txt" --form "uplfile=@ca_sk.txt"
 
 
-REGISTRY=https://gitlab.fit.fraunhofer.de/matthias.babel/heimdall-revocation/-/raw/master/
+REGISTRY=https://github.com/ermolaev1337/test-revoc/blob/main/revocation_registry.json
+CREDENTIAL_ID=1234500
 
 echo "Creating credential of the issuer by the CA"
-curl -s "http://$IP_CA/heimdalljs/cred/new?attributes=attr_issuer.json&id=1234500&publicKey=issuer_pk.json&expiration=365&type=RegistrationOffice&delegatable=1&registry=$REGISTRY&secretKey=ca_sk.txt&destination=cred_issuer.json" > cred_issuer.json
+curl -s "http://$IP_CA/heimdalljs/cred/new?attributes=attr_issuer.json&id=$CREDENTIAL_ID&publicKey=issuer_pk.json&expiration=365&type=RegistrationOffice&delegatable=1&registry=$REGISTRY&secretKey=ca_sk.txt&destination=cred_issuer.json" > cred_issuer.json
 
 
 
@@ -89,4 +90,12 @@ echo "Generate the presentation of the attribute by holder"
 curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&credential=cred_holder.json&secretKey=holder_sk.txt&destination=pres_attribute.json?credential=cred_holder.json" > pres_attribute.json
 
 echo "Verify the attribute presentation (should be verifier, it will be agent)"
-curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > result.txt
+curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result.txt
+
+echo "Revoke the cred"
+curl -s "http://$IP_ISSUER/heimdalljs/revoc/update?index=$CREDENTIAL_ID" > revocation-result.txt
+
+echo "Verify the attribute presentation (should be verifier, it will be agent)"
+curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result-after-revocation.txt
+
+
