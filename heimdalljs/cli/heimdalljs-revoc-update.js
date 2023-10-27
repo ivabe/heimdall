@@ -5,21 +5,23 @@ const {RevocationRegistry} = require("../src/revocation.js");
 const {merklePoseidon} = require("../src/crypto/poseidon.js");
 const {signPoseidon} = require("../circomlib/eddsa.js");
 const path = require("path");
-const {writeFilesRevocation, pushGitRevocation, pushRevocationGitHttps} = require("./util");
+const {writeFilesRevocation, pushGitRevocation, pushRevocationGitHttps, initTree, updateTree} = require("./util");
 
 
 program.arguments("<index>")
     .option("-s, --secretKey <Path>", "Path to the secret key of the issuer")
     .option("-d, --destination <Path>", "Path for storing the revocation file",
-        "./")
+        "/test-revoc/")
     .option("-g, --git", "Commits and pushes to git (if inside of a repro)");
 
 const updateRegistry = async (index, options) => {
     try {
+        initTree();
         let sk;
         if (typeof options.secretKey !== "undefined")
             sk = await fs.readFile(options.secretKey, "utf8");
-        let registry = await fs.readFile(path.join(options.destination, "revocation_registry.json"), "utf8");
+        const treePath = path.join(options.destination, "revocation_registry.json");
+        let registry = await fs.readFile(treePath, "utf8");
         let r = new RevocationRegistry(
             sk,
             merklePoseidon,
@@ -37,8 +39,7 @@ program.action((index, options) => {
     updateRegistry(index, options).then(res => {
         writeFilesRevocation(res, options.destination).then(res => {
             if (options.git) {
-                //pushGitRevocation(options.destination);
-                pushRevocationGitHttps(options.destination);
+                updateTree();
             }
         });
     }).catch(console.log);
