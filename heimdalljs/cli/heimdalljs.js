@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 const path = require("path");
 global.appRoot = path.resolve(__dirname);
-require('dotenv').config();
-
 const { program } = require("commander");
 
 program.command("key", "Managing private public key");

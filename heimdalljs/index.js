@@ -4,6 +4,8 @@ const {Credential} = require('./src/credential')
 const {merklePoseidon} = require('./src/crypto/poseidon.js')
 const {signPoseidon} = require('./circomlib/eddsa.js')
 const {RevocationRegistry} = require('./src/revocation.js')
+require('dotenv').config();
+console.log(process.env.GITHUB_TOKEN);
 
 module.exports = {
     Key,
