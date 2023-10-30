@@ -40,5 +40,5 @@ CMD ["shell2http","-form",\
  "/heimdalljs/cred/new", "heimdalljs cred new --attributes $v_attributes --id $v_id --publicKey $v_publicKey --expiration $v_expiration --type $v_type --delegatable $v_delegatable --registry $v_registry --secretKey $v_secretKey --destination $v_destination ; cat $v_destination",\
  "/heimdalljs/pres/attribute", "heimdalljs pres attribute $v_index --expiration $v_expiration --challenge $v_challenge --destination $v_destination --secretKey $v_secretKey --credential $v_credential ; cat $v_destination",\
  "/heimdalljs/verify", "heimdalljs verify $v_path > result.txt ; cat result.txt",\
- "/heimdalljs/revoc/update", "heimdalljs revoc update $v_index -g"\
+ "/heimdalljs/revoc/update", "heimdalljs revoc update $v_index -g $v_token"\
  ]
