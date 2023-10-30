@@ -8,7 +8,6 @@ class MerkleTree {
      */
     constructor (input, hasher, tree = undefined) {
         this.hasher = hasher;
-        if(tree) console.log(tree);
         if (typeof tree === "undefined") {
             this.depth = Math.log2(input.length);
             if (this.depth < 1 || this.depth % 1 !== 0) throw "Length of input must be pow of two.";
