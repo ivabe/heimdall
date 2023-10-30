@@ -1,26 +1,21 @@
 #!/usr/bin/env node
 const {program} = require("commander");
 const fs = require("fs/promises");
-const {stringifyBigInts} = require("../src/util");
-const { exec } = require("child_process");
 const {RevocationRegistry} = require("../src/revocation.js");
 const {merklePoseidon} = require("../src/crypto/poseidon.js");
 const {signPoseidon} = require("../circomlib/eddsa.js");
-const {writeFilesRevocation, pushGitRevocation, pushRevocationGitHttps} = require("./util");
-
+const {writeFilesRevocation, } = require("./util");
 
 program.option("-s, --secretKey <Path>", "Path to the secret key of the issuer")
     .option("-d, --destination <Path>", "Path for storing the revocation files",
         "./")
-    .option("-g, --git", "Commits and pushes to git (if inside of a repro)");
-
+    .option("-g, --git <Token>", "Commits and pushes to git (if inside of a repro)");
 
 program.action((options) => {
     createNewRegistry(options).then(res => {
         writeFilesRevocation(res, options.destination).then(res => {
             if (options.git) {
-                //pushGitRevocation(options.destination);
-                pushRevocationGitHttps(options.destination);
+                //TODO: implement initiation of a new tree in the repo?
             }
         });
     }).catch(console.log);
