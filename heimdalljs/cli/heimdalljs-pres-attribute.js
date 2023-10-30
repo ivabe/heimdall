@@ -41,7 +41,7 @@ const generatePresentationAttribute = async (index, options) => {
             Number(index)
         );
         await presentation.generate();
-        await presentation.verify(poseidonHash, credential);
+        await presentation.verify(poseidonHash, credential, revocationTree.root);
         let re = await presentation.verify(poseidonHash, credential);
         if (re === false) return Promise.reject(re);
         return Promise.resolve(presentation);

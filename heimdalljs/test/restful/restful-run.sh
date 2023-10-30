@@ -85,19 +85,21 @@ curl -s --request POST "http://$IP_HOLDER/upload/file?name=holder_sk.txt" --form
 
 CHALLENGE=1231423534
 
-echo "Generate the presentation of the attribute by holder"
-#TODO: update circuits and get rid of all the useless output in the pres_attribute.json file
-curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&secretKey=holder_sk.txt&destination=pres_attribute.json&credential=cred_holder.json" > pres_attribute.json
+echo "Generate the presentation of the attribute by holder (before revocation)"
+curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&secretKey=holder_sk.txt&destination=pres_attribute_before_revocation.json&credential=cred_holder.json" > pres_attribute_before_revocation.json
 
 echo "Verify the attribute presentation (should be verifier, it will be agent)"
-curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result.txt
-
+curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute_before_revocation.json" > verification-result-before-revocation.txt
 
 echo "Revoke the cred"
 source .env
 curl -s "http://$IP_ISSUER/heimdalljs/revoc/update?index=$CREDENTIAL_ID&token=$GITHUB_TOKEN" > revocation-result.txt
 
+echo "Generate the presentation of the attribute by holder (after revocation)"
+curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&secretKey=holder_sk.txt&destination=pres_attribute_after_revocation.json&credential=cred_holder.json" > pres_attribute_after_revocation.json
+
+
 echo "Verify the attribute presentation (should be verifier, it will be agent)"
-curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result-after-revocation.txt
+curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute_after_revocation.json" > verification-result-after-revocation.txt
 
 

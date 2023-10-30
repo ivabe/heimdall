@@ -34,11 +34,18 @@ class AttributePresentation extends Presentation {
     }
 
     async verify(hasher, cred, root) {
+        console.debug = function() {};
+        console.debug("root", root)
+        console.debug("this.revocationRoot", this.revocationRoot)
         if (!this.revocationRoot)
             this.revocationRoot = root;
         try {
+            console.debug("verify(hasher, cred, root)");
+            console.debug("this", this)
             let copy = JSON.stringify(stringifyBigInts(this));
             let res = await this.verifyProof();
+            console.debug("await this.verifyProof()", res);
+
             res &&= await this.verifyMeta(
                 0,
                 1,
@@ -50,18 +57,21 @@ class AttributePresentation extends Presentation {
                 8,
                 hasher
             );
-            res &&= hasher([this.output.content.attribute]).toString() === this.publicSignals[6];
+            console.debug("this.verifyMeta()", res);
+            const hashedAttribute = hasher([this.output.content.attribute]).toString();
+            console.debug("hashedAttribute", hashedAttribute);
+            console.debug("this.publicSignals[6]", this.publicSignals[6]);
+            res &&= hashedAttribute === this.publicSignals[6];
+
             this.output.content.position = 0;
             // Pass credentials, look for attribute position (index) within the array
+            console.debug("cred", cred);
             if (cred)
                 this.output.content.position = cred.attributes.indexOf(this.output.content.attribute);
-            /*
-            for (let i = 0; i < 4; i++) {
-                this.output.content.position += (2 ** i) * this.publicSignals[9 + i];
-            }
-            */
+
+            console.debug("JSON.stringify(stringifyBigInts(this))", JSON.stringify(stringifyBigInts(this)))
             res &&= copy === JSON.stringify(stringifyBigInts(this));
-            return Promise.resolve(res);
+            return res;
         } catch (err) {
             return Promise.reject(err);
         }

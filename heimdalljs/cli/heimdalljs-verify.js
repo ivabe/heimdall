@@ -12,6 +12,7 @@ const {DelegationPresentation} = require("../src/presentation/delegation");
 program.arguments("<path>");
 
 const checkPresentation = async (path, options) => {
+    console.debug = function() {};
     try {
         let presentationJSON = JSON.parse(await fs.readFile(path, "utf8"));
         let presentation;
@@ -29,9 +30,13 @@ const checkPresentation = async (path, options) => {
                 presentation = RangePresentation.restore(presentationJSON);
                 break;
         }
+        console.debug('presentation', presentation)
         let revRoot = await getRevocationRoot(presentation.output.meta.revocationRegistry);
-        let valid = presentation.verify(poseidonHash, undefined, revRoot);
-        return Promise.resolve(valid);
+        console.debug('revRoot', revRoot)
+        console.debug("presentation.verify", presentation.verify.toString())
+        let valid = await presentation.verify(poseidonHash, undefined, revRoot);
+        console.debug('valid', valid)
+        return valid;
     } catch (err) {
         return Promise.reject(err);
     }
@@ -41,7 +46,7 @@ program.action((path, options) => {
     checkPresentation(path, options).then(res => {
         console.log(res);
         process.exit();
-   }).catch(res => {
+    }).catch(res => {
         console.log(res);
         process.exit();
     });

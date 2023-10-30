@@ -56,7 +56,6 @@ class Presentation {
         this.privateInput.issuerPK = [cred.signature.pk[0], cred.signature.pk[1]];
         let positionRevocationTree = Math.floor(cred.attributes[0] / Number(MAX_LEAF_SIZE)); // Leaf 4898
         let proofRevocation = revocationTree.generateProof(positionRevocationTree);
-        this.revocationRoot = revocationTree.root;
         this.privateInput.pathRevocation = proofRevocation.path;
         this.privateInput.lemmaRevocation = proofRevocation.lemma;
         this.privateInput.revocationLeaf = revocationTree.leaves[positionRevocationTree];
@@ -170,27 +169,44 @@ class Presentation {
                 '1696606287033'
             ]
          */
+        console.debug = function() {};
+        console.debug("---START verifyMeta()---")
         // Checks if meta type hash from public signal is the same like in public input
-        let res = hasher([this.output.meta.type]).toString() === this.publicSignals[typeIndex];
+        const hashedType = hasher([this.output.meta.type]).toString();
+        console.debug("hashedType", hashedType);
+        console.debug("this.publicSignals[typeIndex]", this.publicSignals[typeIndex]);
+        let res = hashedType === this.publicSignals[typeIndex];
+        console.debug("res", res)
         // Reads revocation root from public signal
+        console.debug("this.output.meta.revocationRoot", this.output.meta.revocationRoot);
+        console.debug("this.publicSignals[revocationRootIndex]", this.publicSignals[revocationRootIndex]);
+
         this.output.meta.revocationRoot = this.publicSignals[revocationRootIndex];
         // Where is the revocation root?
+        console.debug("BigInt(this.revocationRoot", BigInt(this.revocationRoot))
+        console.debug("BigInt(this.output.meta.revocationRoot)", BigInt(this.output.meta.revocationRoot))
         res &&= BigInt(this.revocationRoot) === BigInt(this.output.meta.revocationRoot)
+        console.debug("res", res)
         // Checks if revocationRegistry of public input corresponds to hash of public signals
-        res &&= hasher([this.output.meta.revocationRegistry]).toString() ===
-            this.publicSignals[revocationRegistryHashIndex];
+        const hashedRevocationRegistry = hasher([this.output.meta.revocationRegistry]).toString()
+        console.debug("hashedRevocationRegistry", hashedRevocationRegistry)
+        console.debug("this.publicSignals[revocationRegistryHashIndex]", this.publicSignals[revocationRegistryHashIndex])
+        res &&= hashedRevocationRegistry === this.publicSignals[revocationRegistryHashIndex];
+        console.debug("res", res)
         this.output.meta.revoked = Number(this.publicSignals[revokedIndex]) === 1;
         this.output.meta.delegatable = Number(this.publicSignals[delegatableIndex]) === 1;
         this.output.meta.linkBack = this.publicSignals[linkBackIndex];
         this.output.meta.challenge = this.publicSignals[challengeIndex];
         this.output.meta.expiration = this.publicSignals[expirationIndex];
         if (typeof this.output.meta.issuerPK !== "undefined") {
+            console.debug(" this.output.meta.issuerPK !== \"undefined\"")
             res &&= hasher([
                 this.output.meta.challenge,
                 this.output.meta.issuerPK[0],
                 this.output.meta.issuerPK[1]
             ]).toString() === this.output.meta.linkBack;
         }
+        console.debug("---END verifyMeta()---")
         return Promise.resolve(res);
     }
 }
