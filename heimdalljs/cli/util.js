@@ -71,18 +71,6 @@ const pushGitRevocation = (destination) => {
         });
 };
 
-
-/*
-1) cd /
-2) git clone https://github.com/ermolaev1337/test-revoc.git
-3) cd test-revoc
-4) git pull
-5) read the tree
-6) OPTIONAL: update the file of the tree
-7) OPTIONAL: git commit -m "sdfsdfd"
-8) OPTIONAL: git push
- */
-
 const handleError = (error, stdout, stderr) => {
     if (error) {
         console.error(`error: ${error.message}`);
@@ -100,11 +88,10 @@ const initTree = () => {
     `, handleError);
 };
 
-const updateTree = () => {
+const updateTree = (token) => {
     let reg = "/test-revoc/revocation_registry.json";
     let roo = "/test-revoc/revocation_root.json";
     const username = 'ermolaev1337';
-    const token = process.env.GITHUB_TOKEN;
     const repoUrl = `https://${username}:${token}@github.com/ermolaev1337/test-revoc.git`;
     execSync(`
     cd /test-revoc &&
