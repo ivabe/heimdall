@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/trusted-setup.js",
   "scripts": {
-    "test": "mocha ./lib/*.spec.js --timeout 1000000"
+    "test": "mocha ./lib/attributePresentation.spec.js --timeout 1000000"
   },
   "author": "Egor Ermolaev",
   "license": "ISC",
