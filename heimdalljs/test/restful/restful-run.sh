@@ -46,7 +46,7 @@ curl -s --request POST "http://$IP_CA/upload/file?name=issuer_pk.json" --form "u
 curl -s --request POST "http://$IP_CA/upload/file?name=ca_sk.txt" --form "uplfile=@ca_sk.txt"
 
 
-REGISTRY=https://github.com/ermolaev1337/test-revoc/blob/main/revocation_registry.json
+REGISTRY=https://raw.githubusercontent.com/ermolaev1337/test-revoc/main
 CREDENTIAL_ID=1234500
 
 echo "Creating credential of the issuer by the CA"
@@ -87,13 +87,15 @@ CHALLENGE=1231423534
 
 echo "Generate the presentation of the attribute by holder"
 #TODO: update circuits and get rid of all the useless output in the pres_attribute.json file
-curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&credential=cred_holder.json&secretKey=holder_sk.txt&destination=pres_attribute.json?credential=cred_holder.json" > pres_attribute.json
+curl -s "http://$IP_HOLDER/heimdalljs/pres/attribute?index=10&expiration=100&challenge=$CHALLENGE&secretKey=holder_sk.txt&destination=pres_attribute.json&credential=cred_holder.json" > pres_attribute.json
 
 echo "Verify the attribute presentation (should be verifier, it will be agent)"
 curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result.txt
 
+
 echo "Revoke the cred"
-curl -s "http://$IP_ISSUER/heimdalljs/revoc/update?index=$CREDENTIAL_ID" > revocation-result.txt
+source .env
+curl -s "http://$IP_ISSUER/heimdalljs/revoc/update?index=$CREDENTIAL_ID&token=$GITHUB_TOKEN" > revocation-result.txt
 
 echo "Verify the attribute presentation (should be verifier, it will be agent)"
 curl -s "http://$IP_HOLDER/heimdalljs/verify?path=pres_attribute.json" > verification-result-after-revocation.txt

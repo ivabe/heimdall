@@ -43,7 +43,7 @@ const getRevocationTree = async (treeName, source) => {
             registryObject = await fs.readFile(treeName, "utf8");
             registryObject = JSON.parse(registryObject);
         } else {
-            let response = await got(source);
+            let response = await got(source + "/revocation_registry.json");
             registryObject = JSON.parse(response.body);
         }
         let revocationTree = merklePoseidon([], registryObject.tree);
