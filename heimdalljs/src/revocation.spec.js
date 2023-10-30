@@ -44,7 +44,7 @@ describe('RevocationRegistry class', () => {
     });
 
     after(async () => {
-        console.debug('Debug -> after: cleaning after testing');
+        // console.debug('Debug -> after: cleaning after testing');
     });
 
     let revocationRegistry;

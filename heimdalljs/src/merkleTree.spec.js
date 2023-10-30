@@ -74,7 +74,7 @@ const testMerkleProofOnCredential = async (credential, position, cred_type) => {
         }
         
     }else{
-        console.log("Credential type: " + cred_type + " not supported\n" );
+        // console.log("Credential type: " + cred_type + " not supported\n" );
         return Promise.reject(false);
     }
 };
@@ -87,7 +87,7 @@ describe('MerkleTree class', () => {
     });
 
     after(async () => {
-        console.debug('Debug -> after: cleaning after testing');
+        // console.debug('Debug -> after: cleaning after testing');
         //process.exit(0);
     });
 

@@ -51,9 +51,7 @@ class RevocationRegistry {
     getRevoked(id) {
         if (BigInt(id) >= 2n ** BigInt(REVOC_TREE_DEPTH) * MAX_LEAF_SIZE) throw "Id not in the tree";
         let positionTree = BigInt(id) / MAX_LEAF_SIZE;
-        console.debug('getRevoked() positionTree >> ', positionTree);
         let positionLeaf = BigInt(id) % MAX_LEAF_SIZE;
-        console.debug('getRevoked() positionLeaf >> ', positionLeaf);
         return (BigInt(this.tree.leaves[positionTree]) / 2n ** positionLeaf) % 2n === 1n;
     }
 }
