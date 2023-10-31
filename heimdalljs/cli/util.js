@@ -29,21 +29,32 @@ const parsePolygon = (polygon) => {
     return {vertx: vertx, verty: verty};
 };
 
-const getRevocationRoot = async (source) => {
-    let response = await got(source + "/revocation_root.json").catch(err => {
-        return Promise.reject(err);
-    });
-    return Promise.resolve(JSON.parse(response.body));
+const getRevocationRoot = async (isLocalRoot = true, source = "/app/test-revoc/revocation_root.json") => {
+    initRepo();
+    let rootObject;
+    if (isLocalRoot) {
+        rootObject = await fs.readFile(source, "utf8");
+        await fs.writeFile(`./revocation-root-${Math.floor(Math.random() * 100)}.json`, rootObject);
+        rootObject = JSON.parse(rootObject);
+    } else {
+        const uri = source + "/revocation_root.json";
+        let response = await got(uri);
+        rootObject = JSON.parse(response.body);
+    }
+    return Promise.resolve(rootObject);
 };
 
-const getRevocationTree = async (treeName, source) => {
+const getRevocationTree = async (isLocalTree = true, source = "/app/test-revoc/revocation_registry.json") => {
+    initRepo();
     try {
         let registryObject;
-        if (typeof treeName !== "undefined") {
-            registryObject = await fs.readFile(treeName, "utf8");
+        if (isLocalTree) {
+            registryObject = await fs.readFile(source, "utf8");
+            await fs.writeFile(`./revocation-tree-${Math.floor(Math.random() * 100)}.json`, registryObject);
             registryObject = JSON.parse(registryObject);
         } else {
-            let response = await got(source + "/revocation_registry.json");
+            const uri = source + "/revocation_registry.json";
+            let response = await got(uri);
             registryObject = JSON.parse(response.body);
         }
         let revocationTree = merklePoseidon([], registryObject.tree);
@@ -81,20 +92,21 @@ const handleError = (error, stdout, stderr) => {
     console.log(`stdout: ${stdout}`);
 };
 
-const initTree = () => {
+const initRepo = () => {
     execSync(`
-    cd / &&
+    rm -rf /app/test-revoc &&
+    cd /app &&
     git -C test-revoc pull || git clone https://github.com/ermolaev1337/test-revoc.git
     `, handleError);
 };
 
 const updateTree = (token) => {
-    let reg = "/test-revoc/revocation_registry.json";
-    let roo = "/test-revoc/revocation_root.json";
+    let reg = "/app/test-revoc/revocation_registry.json";
+    let roo = "/app/test-revoc/revocation_root.json";
     const username = 'ermolaev1337';
     const repoUrl = `https://${username}:${token}@github.com/ermolaev1337/test-revoc.git`;
     execSync(`
-    cd /test-revoc &&
+    cd /app/test-revoc &&
     git config --global user.email "heimdall@uni.lu" &&
     git config --global user.name "Heimdall" &&
     git add ${reg} ${roo} &&
@@ -120,5 +132,5 @@ const writeFilesRevocation = async (reg, destination) => {
 
 module.exports = {
     parsePolygon, getRevocationTree, getSecretKey, writeFilesRevocation, pushGitRevocation, updateTree,
-    getRevocationRoot, initTree
+    getRevocationRoot, initRepo
 };

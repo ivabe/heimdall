@@ -31,7 +31,7 @@ const checkPresentation = async (path, options) => {
                 break;
         }
         console.debug('presentation', presentation)
-        let revRoot = await getRevocationRoot(presentation.output.meta.revocationRegistry);
+        let revRoot = await getRevocationRoot(true);
         console.debug('revRoot', revRoot)
         console.debug("presentation.verify", presentation.verify.toString())
         let valid = await presentation.verify(poseidonHash, undefined, revRoot);

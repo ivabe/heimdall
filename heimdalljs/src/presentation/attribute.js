@@ -43,6 +43,7 @@ class AttributePresentation extends Presentation {
             console.debug("verify(hasher, cred, root)");
             console.debug("this", this)
             let copy = JSON.stringify(stringifyBigInts(this));
+            console.debug("copy-1", copy);
             let res = await this.verifyProof();
             console.debug("await this.verifyProof()", res);
 
@@ -63,7 +64,6 @@ class AttributePresentation extends Presentation {
             console.debug("this.publicSignals[6]", this.publicSignals[6]);
             res &&= hashedAttribute === this.publicSignals[6];
 
-            this.output.content.position = 0;
             // Pass credentials, look for attribute position (index) within the array
             console.debug("cred", cred);
             if (cred)
@@ -71,6 +71,8 @@ class AttributePresentation extends Presentation {
 
             console.debug("JSON.stringify(stringifyBigInts(this))", JSON.stringify(stringifyBigInts(this)))
             res &&= copy === JSON.stringify(stringifyBigInts(this));
+            console.debug("JSON.stringify(stringifyBigInts(this) (copy-2)", JSON.stringify(stringifyBigInts(this)));
+
             return res;
         } catch (err) {
             return Promise.reject(err);

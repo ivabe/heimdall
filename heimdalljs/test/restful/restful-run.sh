@@ -46,8 +46,8 @@ curl -s --request POST "http://$IP_CA/upload/file?name=issuer_pk.json" --form "u
 curl -s --request POST "http://$IP_CA/upload/file?name=ca_sk.txt" --form "uplfile=@ca_sk.txt"
 
 
-REGISTRY=https://raw.githubusercontent.com/ermolaev1337/test-revoc/main
-CREDENTIAL_ID=1234500
+REGISTRY=https://github.com/ermolaev1337/test-revoc.git
+CREDENTIAL_ID=1234501
 
 echo "Creating credential of the issuer by the CA"
 curl -s "http://$IP_CA/heimdalljs/cred/new?attributes=attr_issuer.json&id=$CREDENTIAL_ID&publicKey=issuer_pk.json&expiration=365&type=RegistrationOffice&delegatable=1&registry=$REGISTRY&secretKey=ca_sk.txt&destination=cred_issuer.json" > cred_issuer.json

@@ -5,17 +5,17 @@ const {RevocationRegistry} = require("../src/revocation.js");
 const {merklePoseidon} = require("../src/crypto/poseidon.js");
 const {signPoseidon} = require("../circomlib/eddsa.js");
 const path = require("path");
-const {writeFilesRevocation, initTree, updateTree} = require("./util");
+const {writeFilesRevocation, initRepo, updateTree} = require("./util");
 
 program.arguments("<index>")
     .option("-s, --secretKey <Path>", "Path to the secret key of the issuer")
     .option("-d, --destination <Path>", "Path for storing the revocation file",
-        "/test-revoc/")
+        "/app/test-revoc/")
     .option("-g, --git <Token>", "Commits and pushes to git (if inside of a repro)");
 
 const updateRegistry = async (index, options) => {
     try {
-        initTree();
+        initRepo();
         let sk;
         if (typeof options.secretKey !== "undefined")
             sk = await fs.readFile(options.secretKey, "utf8");

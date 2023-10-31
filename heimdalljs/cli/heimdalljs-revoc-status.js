@@ -6,7 +6,7 @@ const { exec } = require("child_process");
 const {RevocationRegistry} = require("../src/revocation.js");
 const {merklePoseidon} = require("../src/crypto/poseidon.js");
 const {signPoseidon} = require("../circomlib/eddsa.js");
-const {initTree} = require("./util");
+const {initRepo} = require("./util");
 
 program.arguments("<index>")
     .option("-d, --destination <Path>", "Path for storing the revocation file",
@@ -14,7 +14,7 @@ program.arguments("<index>")
 
 const updateRegistry = async (index, options) => {
     try {
-        initTree();
+        initRepo();
         let registry = await fs.readFile(options.destination, "utf8");
         let r = new RevocationRegistry(undefined, merklePoseidon, undefined, JSON.parse(registry).tree);
         return Promise.resolve(r.getRevoked(index));
