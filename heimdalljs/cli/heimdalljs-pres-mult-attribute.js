@@ -41,9 +41,13 @@ const generatePresentationAttribute = async (index, options) => {
             merklePoseidon,
             attrs_index.map(Number) // List index of attributes to dislclose
         );
+        console.log("Presentation Ok\n",presentation);
         await presentation.generateMult(attrs_index.length);
+        console.log("Generate Ok\n");
         await presentation.verifyMultAttrs(poseidonHash, credential, '', attrs_index.length);
+        console.log("Verify 1 Ok\n")
         let re = await presentation.verifyMultAttrs(poseidonHash, credential, '', attrs_index.length);
+        console.log("Verify 2 Ok\n", re)
         if (re === false) return Promise.reject(re);
         return Promise.resolve(presentation);
     } catch (err) {

@@ -46,6 +46,7 @@ const getRevocationRoot = async (isLocalRoot = true, source = "/app/test-revoc/r
 
 const getRevocationTree = async (isLocalTree = true, source = "/app/test-revoc/revocation_registry.json") => {
     initRepo();
+    console.log(source);
     try {
         let registryObject;
         if (isLocalTree) {

@@ -80,6 +80,7 @@ class MultipleAttributePresentation extends Presentation {
         try {
             let copy = JSON.stringify(stringifyBigInts(this));
             let res = await this.verifyMultProof(nAttrs);
+            console.log("Verify mult proof: ", res);
             res &&= await this.verifyMultMeta(
                 0,
                 1,
@@ -91,6 +92,7 @@ class MultipleAttributePresentation extends Presentation {
                 7,
                 hasher
             );
+            console.log("Verify meta: ", res);
             // Verify all necessary attribute hashes
             const fixed_index_length = 8;
             const data_array_length = fixed_index_length + nAttrs; // nAttrs = number of attributes to disclose

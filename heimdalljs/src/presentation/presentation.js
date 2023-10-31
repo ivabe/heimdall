@@ -143,6 +143,7 @@ class Presentation {
         this.publicSignals = publicSignals;
 
         let res = await this.verifyMultProof(nAttrs);
+        console.log("Proof:", res);
         // Overwriting private input
         this.privateInput = {};
 
