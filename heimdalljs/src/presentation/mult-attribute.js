@@ -75,6 +75,8 @@ class MultipleAttributePresentation extends Presentation {
     }
 
     async verifyMultAttrs(hasher, cred, root, nAttrs) {
+        console.log("this:", this.revocationRoot);
+        console.log("passed root: ", root);
         if (!this.revocationRoot)
             this.revocationRoot = root;
         try {

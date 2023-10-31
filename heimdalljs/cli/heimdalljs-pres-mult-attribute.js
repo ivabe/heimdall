@@ -42,10 +42,13 @@ const generatePresentationAttribute = async (index, options) => {
             attrs_index.map(Number) // List index of attributes to dislclose
         );
         console.log("Presentation Ok\n",presentation);
+        console.log("Presentation Ok\n",presentation.output.content);
         await presentation.generateMult(attrs_index.length);
         console.log("Generate Ok\n");
+        console.log("Generate Ok\n",presentation);
         await presentation.verifyMultAttrs(poseidonHash, credential, '', attrs_index.length);
-        console.log("Verify 1 Ok\n")
+        console.log("Verify 1 Ok\n");
+        console.log("Verify Ok\n",presentation);
         let re = await presentation.verifyMultAttrs(poseidonHash, credential, '', attrs_index.length);
         console.log("Verify 2 Ok\n", re)
         if (re === false) return Promise.reject(re);
